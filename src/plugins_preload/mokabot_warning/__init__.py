@@ -21,12 +21,9 @@ send_failed_count = 0
 
 @driver.on_bot_disconnect
 async def dead_notification() -> None:
-    """ wait_for_reconnect 秒后如果 bot 没有重连（体现为 bots 字典为空），则认为 bot 寄了"""
-    await asyncio.sleep(wait_for_reconnect)
-
-    if not nonebot.get_bots():
-        await telegram_bot_say(message := 'bot 已断开与 go-cqhttp 的 websocket 连接')
-        logger.critical(message)
+    """在 bot 断线后，通过 telegram 向管理员发送通知"""
+    await telegram_bot_say(message := 'bot 已断开与 Lagrange.OneBot 的 websocket 连接')
+    logger.critical(message)
 
 
 @Bot.on_called_api
