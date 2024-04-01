@@ -8,10 +8,8 @@ from . import *
 from nonebot.plugin import PluginMetadata
 
 __plugin_meta__ = PluginMetadata(
-    name='聊天',
-    description='包装 Poe 的 API，实现聊天功能，默认关闭',
+    name='IP查询工具',
+    description='',
     usage='',
-    extra={'enable_on_default': False, 'database_table': 'chat'}
+    extra={'enable_on_default': True}
 )
-
-# TODO 添加单元测试
