@@ -13,7 +13,7 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
     query = args.extract_plain_text().strip()
 
     if not query or not is_valid_ip(query):
-        await matcher.finish('请输入有效的 IP 地址')
+        await matcher.finish('请输入有效的 IP 地址', reply_message=True)
 
     result_ipapi = await ipapi.lookup(query)
     result_uainfo = await uainfo.lookup(query)

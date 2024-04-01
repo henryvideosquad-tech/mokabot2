@@ -50,7 +50,7 @@ async def vndb_handle(args: Message = CommandArg()):
         msg = f'未知的错误发生：{e}'
         logger.exception(e)
 
-    await vndb.finish(msg)
+    await vndb.finish(msg, reply_message=True)
 
 
 async def vndb_probe(stype: str, cmd: str, info: str) -> Union[str, MessageSegment]:

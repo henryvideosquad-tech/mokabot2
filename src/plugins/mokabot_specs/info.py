@@ -29,11 +29,10 @@ async def get_phone_info(id_: int) -> BytesIO:
 
 
 async def generate_phone_message(id_: int) -> Message:
-    # return (
-    #         MessageSegment.image(get_phone_image_url(id_)) +
-    #         MessageSegment.image(await get_phone_info(id_))
-    # )
-    return MessageSegment.image(await get_phone_info(id_))
+    return (
+            MessageSegment.image(get_phone_image_url(id_)) +
+            MessageSegment.image(await get_phone_info(id_))
+    )
 
 
 async def generate_pc_message(id_: int):

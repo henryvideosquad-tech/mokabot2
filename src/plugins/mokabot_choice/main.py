@@ -9,7 +9,7 @@ moka_choice = on_command('moka选择', priority=5)
 
 @moka_choice.handle()
 async def _(args: Message = CommandArg()):
-    await moka_choice.finish(select_item_from_message(args.extract_plain_text()))
+    await moka_choice.finish(select_item_from_message(args.extract_plain_text()), reply_message=True)
 
 
 def select_item_from_message(message: str) -> str:
