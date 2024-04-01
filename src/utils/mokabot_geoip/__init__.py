@@ -46,9 +46,6 @@ def is_valid_ipv6(ip: str) -> bool:
 
 class BaseGeoIPLookup(object):
 
-    def __init__(self):
-        self.client = get_client()
-
     async def lookup(self, ip: str) -> BaseModel:
         raise NotImplementedError
 
@@ -57,32 +54,32 @@ class GeoIPLookupIPAPI(BaseGeoIPLookup):
     """ip-api.com"""
 
     async def lookup(self, ip: str) -> IpApiResponse:
-        async with self.client as client:
+        async with get_client() as client:
             response = await client.get(f'http://ip-api.com/json/{ip}?lang=zh-CN&fields=4255711')
 
-        return IpApiResponse.parse_obj(response.json())
+        return IpApiResponse(**response.json())
 
 
 class UserAgentInfoAPI(BaseGeoIPLookup):
     """ip.useragentinfo.com. It is more accurate when querying China’s domestic IP information """
 
     async def lookup(self, ip: str) -> UserAgentInfoResponse:
-        async with self.client as client:
+        async with get_client() as client:
             response = await client.get(f'https://ip.useragentinfo.com/jsonp?ip={ip}')
             jsonp_response = response.text
             json_response = jsonp_to_json(jsonp_response)
 
-        return UserAgentInfoResponse.parse_obj(json_response)
+        return UserAgentInfoResponse(**json_response)
 
 
 class Mir6API(BaseGeoIPLookup):
     """api.mir6.com IPv4, IPv6 or domain"""
 
     async def lookup(self, ip: str) -> Mir6Response:
-        async with self.client as client:
+        async with get_client() as client:
             response = await client.get(f'https://api.mir6.com/api/ip?ip={ip}&type=json')
 
-        return Mir6Response.parse_obj(response.json())
+        return Mir6Response(**response.json())
 
 
 ipapi = GeoIPLookupIPAPI()
