@@ -8,12 +8,14 @@ from pydantic import ValidationError
 from .BandoriChartRender import render_chart_official, render_chart_user_post
 from .bestdori.model import Language
 from .bind import bind, get_user_id, set_user_region, get_user_region
+from .event import generate_event_list
 from .exception import TooManyRecordsError, NoRecordsError
-from .song import parse_song_difficulty, get_song_id
+from .song import parse_song_difficulty, get_song_id, generate_song_list
 from .user import generate_user_profile_image
 
 chart_render = on_command('邦邦谱面', aliases={'bandori谱面'}, priority=5)
 list_event = on_command('活动列表', priority=5)
+list_song = on_command('歌曲列表', aliases={'曲目列表', '谱面列表'}, priority=5)
 bandori_bind = on_command('邦邦绑定', aliases={'绑定邦邦'}, priority=5)
 bandori_user = on_command('玩家状态', aliases={'邦邦状态', '邦邦查询'}, priority=5)
 mode_jp = on_command('日服模式', priority=5)
@@ -48,6 +50,17 @@ async def _(args: Message = CommandArg()):
 
     await chart_render.finish(msg, reply_message=True)
 
+
+@list_event.handle()
+async def _(event: MessageEvent):
+    msg = await generate_event_list(get_user_region(event.user_id))
+    await list_event.finish(MessageSegment.image(msg), reply_message=True)
+
+
+@list_song.handle()
+async def _(event: MessageEvent):
+    msg = await generate_song_list()
+    await list_song.finish(MessageSegment.image(msg), reply_message=True)
 
 @bandori_bind.handle()
 async def _(event: MessageEvent, args_: Message = CommandArg()):

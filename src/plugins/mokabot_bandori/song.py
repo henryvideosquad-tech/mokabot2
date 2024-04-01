@@ -1,7 +1,9 @@
 import re
+from io import BytesIO
 from string import printable
 from time import time
 
+from src.utils.mokabot_text2image import to_bytes_io
 from .BandoriChartRender.model import DifficultyInt
 from .bestdori import get_songs_all
 from .bestdori.model import Song
@@ -86,3 +88,24 @@ async def get_song_id(song_desc: str) -> int:
             (song_id, get_valid_value_from_list(songs_all.__root__[song_id].musicTitle))
             for song_id in result
         ])
+
+
+async def generate_song_list() -> BytesIO:
+    if time() - CACHE_TIMESTAMP > 60 * 60 * 24:
+        songs_all = await get_songs_all()
+    else:
+        songs_all = await get_songs_all(is_cache=True)
+    text = '歌曲列表：\n'
+
+    for index, song in songs_all.__root__.items():
+        if (title := get_valid_value_from_list(song.musicTitle)) is None:
+            continue
+
+        ex_difficulty = song.difficulty[DifficultyInt.Expert].playLevel
+        if DifficultyInt.Special in song.difficulty:
+            sp_difficulty = song.difficulty[DifficultyInt.Special].playLevel
+            text += f'{index:<5} EX{ex_difficulty} SP{sp_difficulty} {title}\n'
+        else:
+            text += f'{index:<5} EX{ex_difficulty} {title}\n'
+
+    return to_bytes_io(text)
