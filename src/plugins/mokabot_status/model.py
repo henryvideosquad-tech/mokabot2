@@ -21,4 +21,4 @@ class OneBotStatus(BaseModel):
     good: bool
     online: bool
     plugins_good: Optional[bool]
-    stat: Stat
+    stat: Optional[Stat]  # 未在 Lagrange 适配此字段

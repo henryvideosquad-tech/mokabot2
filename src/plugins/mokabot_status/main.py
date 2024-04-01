@@ -4,9 +4,12 @@ from nonebot import on_command, on_type
 from nonebot.adapters.onebot.v11 import Bot, PokeNotifyEvent
 from nonebot.rule import to_me
 
-from src.utils.mokabot_humanize import format_timestamp
-from .onebot import get_onebot_status, get_bot_friend_count, get_bot_group_count
-from .system import get_bot_uptime, get_system_avgload, get_system_virtual_memory_percent, get_system_swap_memory_percent, get_system_uptime
+from .mokabot import (
+    get_bot_uptime, message_counter,
+    get_last_message_time, get_message_sent_count, get_message_received_count, get_disconnect_times
+)
+from .onebot import get_bot_friend_count, get_bot_group_count
+from .system import get_system_avgload, get_system_virtual_memory_percent, get_system_swap_memory_percent, get_system_uptime
 
 status = on_command('status', rule=to_me(), priority=5)
 poke = on_type(PokeNotifyEvent, rule=to_me(), priority=5)
@@ -19,12 +22,11 @@ async def _(bot: Bot):
 
 
 async def generate_status(bot: Bot) -> str:
-    stat = (await get_onebot_status(bot)).stat
     return dedent(f'''\
         [mokabot 运行状态]
         
         已加载 {await get_bot_friend_count(bot)} 个好友，{await get_bot_group_count(bot)} 个群聊
-        最后一条消息发送于：{format_timestamp("%Y-%m-%d %H:%M:%S", stat.last_message_time)}
+        最后一条消息发送于：{get_last_message_time()})
         
         上线时间：
          - Bot：{get_bot_uptime()}
@@ -36,8 +38,8 @@ async def generate_status(bot: Bot) -> str:
          - Swap：{get_system_swap_memory_percent()}
          
         统计信息：
-         - 数据包接收/发送/丢失：{stat.packet_received} / {stat.packet_sent} / {stat.packet_lost}
-         - 消息接收/发送：{stat.message_received} / {stat.message_sent}
-         - TCP 链接断开次数：{stat.disconnect_times}
-         - 账号掉线次数：{stat.lost_times}
-    ''')
+         - 最近一分钟内收发消息总数：{message_counter.count_last_minute()}
+         - 最近一小时内收发消息总数：{message_counter.count_last_hour()}
+         - 最近一天内收发消息总数：{message_counter.count_last_day()}
+         - 消息接收/发送总计：{get_message_received_count()} / {get_message_sent_count()}
+         - WebSocket 连接断开次数：{get_disconnect_times()}''')

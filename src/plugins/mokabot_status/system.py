@@ -4,13 +4,6 @@ import psutil
 
 from src.utils.mokabot_humanize import SecondHumanizeUtils
 
-MOKABOT_START_TIME = time.time()
-
-
-def get_bot_uptime() -> str:
-    uptime = time.time() - MOKABOT_START_TIME
-    return SecondHumanizeUtils(uptime).to_datetime()
-
 
 def get_system_uptime() -> str:
     uptime = time.time() - psutil.boot_time()
