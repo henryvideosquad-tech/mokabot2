@@ -34,7 +34,7 @@ async def _(bot: Bot, exception: Optional[Exception], api: str, data: dict[str, 
         status = MessageStatus.SENT_SUCCESS if message_id else MessageStatus.SENT_FAILED
 
         write_message_log(message_id, raw_message, data.group_id, data.user_id, status)
-        if message_id is None:
+        if message_id is not None:
             logger.info(f'Bot发送消息：{raw_message}')
         else:
             logger.warning(f'Bot发送消息失败：{raw_message}')
