@@ -17,7 +17,7 @@ from pydantic import BaseModel
 from src.utils.mokabot_humanize import format_timestamp, SecondHumanizeUtils
 from .base import BaseParse
 from .exceptions import NoSuchTypeError
-from .utils import get_client
+from .utils import get_client, get_headers
 
 
 class BilibiliParse(BaseParse):
@@ -100,7 +100,7 @@ async def b23_extract(text: str) -> str:
     b23 = re.compile(r'b23.tv/(\w+)|(bili(22|23|33|2233).cn)/(\w+)', re.I).search(text.replace('\\', ''))
     url = f'https://{b23[0]}'
     async with get_client(follow_redirects=True) as client:
-        resp = await client.get(url)
+        resp = await client.get(url, headers=get_headers())
         return str(resp.url)
 
 
@@ -108,8 +108,8 @@ async def search_bili_by_title(title: str) -> str:
     search_url = f'https://api.bilibili.com/x/web-interface/wbi/search/all/v2?keyword={urllib.parse.quote(title)}'
 
     async with get_client() as client:
-        await client.get('https://www.bilibili.com/')  # fix search api requires cookie
-        r = (await client.get(search_url)).json()
+        await client.get('https://www.bilibili.com/', headers=get_headers())  # fix search api requires cookie
+        r = (await client.get(search_url, headers=get_headers())).json()
 
     result = r['data']['result']
     for item in result:
@@ -121,7 +121,7 @@ async def search_bili_by_title(title: str) -> str:
 
 async def video_detail(api_url: str) -> Message:
     async with get_client() as client:
-        data = (await client.get(api_url)).json()['data']
+        data = (await client.get(api_url, headers=get_headers())).json()['data']
         video = VideoResponse(**data)
 
     text = (
@@ -138,7 +138,7 @@ async def video_detail(api_url: str) -> Message:
 
 async def bangumi_detail(url: str) -> Message:
     async with get_client() as client:
-        result = (await client.get(url)).json()['result']
+        result = (await client.get(url, headers=get_headers())).json()['result']
         bangumi = BangumiResponse(**result)
 
     # 当 url 里带 ep_id 时，说明这个 url 指向的是一部番剧的具体某一集
@@ -168,7 +168,7 @@ async def bangumi_detail(url: str) -> Message:
 
 async def live_detail(url: str) -> Message:
     async with get_client() as client:
-        resp = await client.get(url)
+        resp = await client.get(url, headers=get_headers())
         live_json_response = resp.json()
     if live_json_response['code'] in [-400, 19002000]:
         raise RuntimeError('直播间不存在')
@@ -193,7 +193,7 @@ async def live_detail(url: str) -> Message:
 
 async def article_detail(url: str) -> Message:
     async with get_client() as client:
-        data = (await client.get(url)).json()['data']
+        data = (await client.get(url, headers=get_headers())).json()['data']
         article = ArticleResponse(**data)
 
     text = (
@@ -208,7 +208,7 @@ async def article_detail(url: str) -> Message:
 
 async def dynamic_detail(url: str) -> str:  # from mengshouer/nonebot_plugin_analysis_bilibili
     async with get_client() as client:
-        res = (await client.get(url)).json()['data']['card']
+        res = (await client.get(url, headers=get_headers())).json()['data']['card']
     card = DynamicCard(**json.loads(res['card']))
     desc = DynamicDesc(**res['desc'])
 
